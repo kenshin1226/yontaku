@@ -1,0 +1,21 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>四択クイズ</title>
+</head>
+<body>
+    <h1>第{{c+1}}問目{{q}}</h1>
+    <form action="/kotaeAwase" method="get">
+        <input type="radio" name="q1" value={{a[0]}} >{{a[0]}}<br>
+            <input type="radio" name="q1" value={{a[1]}} >{{a[1]}}<br>
+            <input type="radio" name="q1" value={{a[2]}} >{{a[2]}}<br>
+            <input type="radio" name="q1" value={{a[3]}} >{{a[3]}}<br>
+            <input type="radio" name="q1" value={{a[4]}} >{{a[4]}}<br>
+        <input type="submit" value="回答を送信">
+    </form>
+</body>
+</html>
