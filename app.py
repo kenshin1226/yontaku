@@ -14,33 +14,72 @@ seikais=["東京","ウイニングポスト","う","日曜日"]
 @app.route('/') 
 def index():
     session['current_question'] = 0 # 現在の質問のインデックスを初期化 
-    return redirect(url_for('syutudai'))
+    return redirect(url_for('login'))
 #出題
 @app.route('/syutudai', methods=['GET'])	#/syutudaiにgetメソッドでアクセスされたとき以下実行
 def syutudai():							#中身の関数
+    if "user" not in session :
+        return redirect(url_for('login'))
     if session['current_question']==len(qus):
         return "終了です"
     c=session['current_question']    
-    print(f"{c=}")
     q=qus[c]
     a=ars[c]   
+
     return render_template('syutudai.html',a=a,q=q,c=c)#もともとc=str(c)だったが問題がなさそうなので外した
 #答え合わせ
 @app.route('/kotaeAwase', methods=['GET'])	#/kotaeAwaseにgetメソッドでアクセスされたとき以下実行
 def kotaeAwase():							#中身の関数
+    if "user" not in session:
+        return redirect(url_for('login'))
     c=session['current_question']    
     kekka=""
     kaitou = request.args.get('q1')
-    print(f"{kaitou=}")
     ans=seikais[c]
     if kaitou == ans:
         kekka="正解"
     else:
         kekka="不正解"
     session['current_question'] += 1 # 次の質問に進む 
-    print(f"{session['current_question']=}")
     
     return render_template('kotaeAwase.html',kekka=kekka,ans=ans)
+
+
+
+# 固定のユーザー情報を定義
+USER_CREDENTIALS = {
+    "sugizaki": "kensin"
+}
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    error_message = None
+
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        if username in USER_CREDENTIALS and USER_CREDENTIALS[username] == password:
+            session['user'] = username
+            return redirect(url_for('dashboard'))
+        else:
+            error_message = 'Login Unsuccessful. Please check username and password'
+
+    return render_template('login.html', error_message=error_message)
+
+@app.route('/logout')
+def logout():
+    session.pop('user', None)
+    return redirect(url_for('login'))
+
+@app.route('/dashboard')
+def dashboard():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    return redirect(url_for('syutudai'))
+
+
+
 
 
 if __name__ == "__main__":			#いつものやつｗ
