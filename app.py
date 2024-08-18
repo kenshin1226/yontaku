@@ -1,6 +1,8 @@
 
 #from flask import Flask,render_template,request				#Flaskをインポート
 from flask import Flask, render_template, redirect, url_for, session, request
+import sqlite3
+
 app = Flask(__name__)				#インスタンス作成
 app.secret_key = 'your_secret_key' # セッションのための秘密鍵を設定
 qus=["日本の首都は？","最近すぎざきけんしんがハマったゲームは?","問3","今日の曜日は？"]
@@ -46,10 +48,10 @@ def kotaeAwase():							#中身の関数
 
 
 
-# 固定のユーザー情報を定義
-USER_CREDENTIALS = {
-    "sugizaki": "kensin"
-}
+# # 固定のユーザー情報を定義
+# USER_CREDENTIALS = {
+#     "sugizaki": "kensin"
+# }
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -58,14 +60,53 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-
-        if username in USER_CREDENTIALS and USER_CREDENTIALS[username] == password:
-            session['user'] = username
-            return redirect(url_for('dashboard'))
-        else:
-            error_message = 'Login Unsuccessful. Please check username and password'
+        # データを確認
+        conn = sqlite3.connect('yontakudatabase.db')
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM users")
+        rows = cursor.fetchall()
+        print(f"{rows=}")
+        #[(1, 'Alice', 30, 'password', '女'), (2, 'Bob', 25, 'hello', '男'), (3, 'taro', 20, 'あいうえお', '男')]
+        for row in rows:
+            print(row)
+        conn.close()
+        for i in range(7):
+            if username in rows[i]:
+                if rows[i][3]==password:
+                    print("合格")
+                    session['user'] = username
+                    return redirect(url_for('dashboard'))
+            else:
+                print("NO") 
+        # if username in rows and rows[username] == password:
+        #     session['user'] = username
+        #     return redirect(url_for('dashboard'))
+        # else:
+        #     error_message = 'Login Unsuccessful. Please check username and password'
 
     return render_template('login.html', error_message=error_message)
+
+@app.route('/regist',methods=['GET','POST'])
+def regist():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        age=10
+        seibetu='男'
+        conn = sqlite3.connect('yontakudatabase.db')
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO users (name, age, pass,seibetu) VALUES(?,?,?,?) ",(username, age, password,seibetu))
+        conn.commit()
+        # データを確認
+        cursor.execute("SELECT * FROM users")
+        rows = cursor.fetchall()
+        for row in rows:
+            print(row)
+
+        # 接続を閉じる
+        conn.close()    
+    return render_template('regist.html')
+
 
 @app.route('/logout')
 def logout():
