@@ -60,9 +60,10 @@ def authenticate_user(username, password):
     if connection is not None:
         try:
             cursor = connection.cursor()
-            query = "SELECT password_hash FROM users WHERE username = ?"
-            cursor.execute(query, (username,))
+            query = "SELECT pass FROM users WHERE name = ?"
+            cursor.execute(query, (username))
             result = cursor.fetchone()
+            print(f"{result=}")
             if result:
                 hashed_password = result[0]
                 if bcrypt.checkpw(password.encode('utf-8'), hashed_password):
@@ -82,19 +83,20 @@ def authenticate_user(username, password):
 #     if len(parts) == 6:
 #         quiz_questions.append(parts)
 
+
+
 @app.route('/login', methods=['GET','POST'])
 def login():
-    username = request.form['username']
-    password = request.form['password']
-    if authenticate_user(username, password):
-        session['username'] = username
-        return redirect(url_for('loginok'))
-    else:
-        # return render_template('error.html')  # ログイン失敗時にerror.htmlを表示
-        return "エラー"
-
-
-
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if authenticate_user(username, password):
+            session['user'] = username       #{'username':'kkk'}
+            return redirect(url_for('syutudai'))
+        else:
+            # return render_template('error.html')  # ログイン失敗時にerror.htmlを表示
+            return "エラー"
+    return render_template('login.html')
 
 
 
