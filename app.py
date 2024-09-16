@@ -47,6 +47,18 @@ def kotaeAwase():							#中身の関数
     
     return render_template('kotaeAwase.html',kekka=kekka,ans=ans)
 
+@app.route('/syouhizei',methods=['GET'])
+def Shouhizei():
+    return render_template('syouhizei.html')
+@app.route('/syouhizei2',methods=['POST'])
+def Shouhizei2():
+    zeiritu=request.form["zeiritu"]
+    money=request.form["money"]#送られてくるのは辞書型
+    syouhizei=int(zeiritu)
+    price=int(money)
+    print(f"{syouhizei=},{price=}")
+    a=0.01*syouhizei*price+price
+    return render_template('syouhizei2.html',a=a)
 
 
 
@@ -57,15 +69,17 @@ def create_db_connection():
 # ユーザーの認証を行う関数
 def authenticate_user(username, password):
     connection = create_db_connection()
+    print(f"{connection=}")
     if connection is not None:
         try:
             cursor = connection.cursor()
             query = "SELECT pass FROM users WHERE name = ?"
-            cursor.execute(query, (username))
+            cursor.execute(query, (username,))
             result = cursor.fetchone()
             print(f"{result=}")
             if result:
                 hashed_password = result[0]
+                print(f"{hashed_password=}")
                 if bcrypt.checkpw(password.encode('utf-8'), hashed_password):
                     return True
         except sqlite3.Error as e:
@@ -90,7 +104,7 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        if authenticate_user(username, password):
+        if authenticate_user(username, password)==True:
             session['user'] = username       #{'username':'kkk'}
             return redirect(url_for('syutudai'))
         else:

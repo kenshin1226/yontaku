@@ -1,6 +1,9 @@
-a=[12,]
-b=(12,34,56,67)
+a=(12)
+b=[12,34,56,67]
 #a[1]=99
 print(a)
-print(a[0])
+#print(a[0])
 print(b)
+print(type(a))
+#print(type(a[0]))
+print(type(b))
